@@ -259,8 +259,8 @@ export default function FinancingPage() {
             )}
 
             {akadType === 'murabahah' && (
-              <div className="overflow-hidden border border-white/10 rounded-xl">
-                <table className="w-full text-left text-sm">
+              <div className="overflow-x-auto border border-white/10 rounded-xl">
+                <table className="w-full text-left text-sm min-w-[500px]">
                   <thead className="bg-black/40 text-gray-300">
                     <tr>
                       <th className="px-4 py-3 font-medium">Bulan Ke</th>
@@ -306,33 +306,35 @@ export default function FinancingPage() {
                 </span>
               </div>
               
-              <div className="bg-black/30 rounded-xl p-4 font-mono text-sm">
-                <div className="grid grid-cols-12 text-gray-500 mb-2 border-b border-white/10 pb-2">
-                  <div className="col-span-2">Kode Akun</div>
-                  <div className="col-span-6">Nama Akun</div>
-                  <div className="col-span-2 text-right">Debit</div>
-                  <div className="col-span-2 text-right">Kredit</div>
-                </div>
-                
-                <div className="grid grid-cols-12 text-gray-300 py-1">
-                  <div className="col-span-2 text-emerald-400">14101</div>
-                  <div className="col-span-6">Piutang Murabahah - {assetDescription || '[Nama Barang]'}</div>
-                  <div className="col-span-2 text-right">{(totalPembiayaan).toLocaleString()}</div>
-                  <div className="col-span-2 text-right">-</div>
-                </div>
-                
-                <div className="grid grid-cols-12 text-gray-300 py-1">
-                  <div className="col-span-2 text-emerald-400">22101</div>
-                  <div className="col-span-6 pl-4">Margin Murabahah Ditangguhkan</div>
-                  <div className="col-span-2 text-right">-</div>
-                  <div className="col-span-2 text-right text-amber-400">{(totalMargin).toLocaleString()}</div>
-                </div>
-                
-                <div className="grid grid-cols-12 text-gray-300 py-1">
-                  <div className="col-span-2 text-emerald-400">11101</div>
-                  <div className="col-span-6 pl-4">Kas / Bank Syariah</div>
-                  <div className="col-span-2 text-right">-</div>
-                  <div className="col-span-2 text-right text-red-400">{(pokok).toLocaleString()}</div>
+              <div className="bg-black/30 rounded-xl p-4 font-mono text-sm overflow-x-auto">
+                <div className="min-w-[500px]">
+                  <div className="grid grid-cols-12 text-gray-500 mb-2 border-b border-white/10 pb-2">
+                    <div className="col-span-2">Kode Akun</div>
+                    <div className="col-span-6">Nama Akun</div>
+                    <div className="col-span-2 text-right">Debit</div>
+                    <div className="col-span-2 text-right">Kredit</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-12 text-gray-300 py-1">
+                    <div className="col-span-2 text-emerald-400">14101</div>
+                    <div className="col-span-6">Piutang Murabahah - {assetDescription || '[Nama Barang]'}</div>
+                    <div className="col-span-2 text-right">{(totalPembiayaan).toLocaleString()}</div>
+                    <div className="col-span-2 text-right">-</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-12 text-gray-300 py-1">
+                    <div className="col-span-2 text-emerald-400">22101</div>
+                    <div className="col-span-6 pl-4">Margin Murabahah Ditangguhkan</div>
+                    <div className="col-span-2 text-right">-</div>
+                    <div className="col-span-2 text-right text-amber-400">{(totalMargin).toLocaleString()}</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-12 text-gray-300 py-1">
+                    <div className="col-span-2 text-emerald-400">11101</div>
+                    <div className="col-span-6 pl-4">Kas / Bank Syariah</div>
+                    <div className="col-span-2 text-right">-</div>
+                    <div className="col-span-2 text-right text-red-400">{(pokok).toLocaleString()}</div>
+                  </div>
                 </div>
               </div>
             </div>
