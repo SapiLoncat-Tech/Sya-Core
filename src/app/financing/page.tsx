@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileSignature, Calculator, Eye, CalendarCheck, Save, Loader2, CheckCircle2 } from 'lucide-react';
 import { getMembers, createContractAction } from '@/app/actions/financing';
@@ -109,7 +110,12 @@ export default function FinancingPage() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Nasabah</label>
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-gray-300">Nasabah</label>
+                <Link href="/members" className="text-xs text-emerald-400 hover:text-emerald-300 font-medium">
+                  + Tambah Nasabah Baru
+                </Link>
+              </div>
               <select 
                 value={memberId}
                 onChange={(e) => setMemberId(e.target.value)}
