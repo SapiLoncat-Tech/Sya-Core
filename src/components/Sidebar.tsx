@@ -56,8 +56,11 @@ export default function Sidebar() {
 
       {/* Overlay for Mobile */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+        <button 
+          type="button"
+          aria-label="Tutup sidebar"
+          tabIndex={-1}
+          className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm z-40 lg:hidden border-none outline-none cursor-default block"
           onClick={() => setIsOpen(false)}
         />
       )}
