@@ -1,0 +1,42 @@
+[
+  {
+    "full_name": "Siti Nurhaliza",
+    "nik": "3201011234567890",
+    "phone": "081234567890",
+    "address": "Jl. Merdeka No. 10, Jakarta",
+    "join_date": "2023-01-15",
+    "status": "active"
+  },
+  {
+    "full_name": "Budi Santoso",
+    "nik": "3201019876543210",
+    "phone": "089876543210",
+    "address": "Jl. Diponegoro No. 25, Bandung",
+    "join_date": "2023-03-22",
+    "status": "active"
+  },
+  {
+    "full_name": "Aisyah Putri",
+    "nik": "3201015555555555",
+    "phone": "085555555555",
+    "address": "Perumahan Indah Asri Blok C, Surabaya",
+    "join_date": "2023-06-10",
+    "status": "active"
+  },
+  {
+    "full_name": "Reza Rahadian",
+    "nik": "3201017777777777",
+    "phone": "087777777777",
+    "address": "Apartemen Melati, Yogyakarta",
+    "join_date": "2023-09-05",
+    "status": "active"
+  },
+  {
+    "full_name": "Fatimah Azzahra",
+    "nik": "3201019999999999",
+    "phone": "089999999999",
+    "address": "Jl. Kenanga No. 8, Semarang",
+    "join_date": "2024-01-20",
+    "status": "active"
+  }
+]
