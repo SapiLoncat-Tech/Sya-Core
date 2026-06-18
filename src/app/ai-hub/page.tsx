@@ -7,8 +7,11 @@ import { Bot, ScanLine, FileCheck, ShieldCheck, Activity, UploadCloud, CheckCirc
 export default function AIHubPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<any>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [scanResult, setScanResult] = useState<{
+    docType: string;
+    confidence: number;
+    extracted: { nominal: number; tanggal: string; namaPihak: string; deskripsi?: string; };
+  } | null>(null);
 
   // Mock function untuk simulasi AI OCR Scanning
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

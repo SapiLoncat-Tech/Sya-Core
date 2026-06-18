@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Settings, Shield, Sliders, Users, UploadCloud, Download, Loader2, CheckCircle2 } from "lucide-react";
+import { Shield, Sliders, Users, UploadCloud, Download, Loader2, CheckCircle2 } from "lucide-react";
 import { importMembersAction } from "@/app/actions/import";
 
 export default function SettingsPage() {
