@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Shield, Sliders, Users, UploadCloud, Download, Loader2, CheckCircle2 } from "lucide-react";
 import { importMembersAction } from "@/app/actions/import";
 
@@ -8,7 +8,6 @@ export default function SettingsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState({ type: '', text: '' });
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -157,8 +156,7 @@ export default function SettingsPage() {
             </div>
             
             <form onSubmit={handleUpload} className="flex-1 w-full flex flex-col gap-3">
-              <div 
-                onClick={() => fileInputRef.current?.click()}
+              <label 
                 className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors flex flex-col items-center justify-center ${file ? 'border-blue-500 bg-blue-500/10' : 'border-white/20 hover:border-blue-400 bg-white/5'}`}
               >
                 {file ? (
@@ -168,12 +166,11 @@ export default function SettingsPage() {
                 )}
                 <input 
                   type="file" 
-                  ref={fileInputRef} 
                   className="hidden" 
                   accept=".json,application/json"
                   onChange={handleFileChange}
                 />
-              </div>
+              </label>
 
               {uploadMessage.text && (
                 <div className={`p-3 rounded-lg text-xs flex items-start gap-2 border ${uploadMessage.type === 'success' ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-red-500/20 border-red-500/30 text-red-300'}`}>
