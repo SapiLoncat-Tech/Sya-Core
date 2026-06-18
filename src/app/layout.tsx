@@ -20,8 +20,8 @@ export default function RootLayout({
     <html lang="id" className="dark">
       <body className={`${inter.variable} ${outfit.variable} antialiased bg-background text-foreground flex min-h-screen selection:bg-emerald-500/30`}>
         <Sidebar />
-        <main className="flex-1 overflow-y-auto h-screen p-8 relative">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none -z-10 translate-x-1/2 -translate-y-1/2"></div>
+        <main className="flex-1 overflow-y-auto h-screen p-4 lg:p-8 pt-24 lg:pt-8 relative w-full overflow-x-hidden">
+          <div className="absolute top-0 right-0 w-[300px] lg:w-[500px] h-[300px] lg:h-[500px] bg-emerald-500/10 blur-[100px] lg:blur-[120px] rounded-full pointer-events-none -z-10 translate-x-1/2 -translate-y-1/2"></div>
           {children}
         </main>
       </body>
