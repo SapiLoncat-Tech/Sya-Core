@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, ScanLine, FileCheck, AlertTriangle, ShieldCheck, Activity, UploadCloud, CheckCircle2, ChevronRight, X } from 'lucide-react';
+import { Bot, ScanLine, FileCheck, ShieldCheck, Activity, UploadCloud, CheckCircle2, X } from 'lucide-react';
 
 export default function AIHubPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -65,23 +65,21 @@ export default function AIHubPage() {
             
             {/* Area Upload */}
             {!file ? (
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white/5 group"
+              <label 
+                className="w-full border-2 border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white/5 group block"
               >
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform mx-auto">
                   <UploadCloud className="w-8 h-8 text-blue-400" />
                 </div>
                 <h3 className="text-white font-medium mb-1">Klik atau Tarik Dokumen Kesini</h3>
                 <p className="text-xs text-gray-400">Mendukung file JPG, PNG, atau PDF (Maks 5MB)</p>
                 <input 
                   type="file" 
-                  ref={fileInputRef} 
                   className="hidden" 
                   accept="image/jpeg, image/png, application/pdf"
                   onChange={handleFileUpload}
                 />
-              </div>
+              </label>
             ) : (
               <div className="space-y-4">
                 {/* File Preview */}
