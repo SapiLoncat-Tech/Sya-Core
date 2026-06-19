@@ -2,10 +2,6 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Inisialisasi Gemini API
-// Pastikan GEMINI_API_KEY sudah terpasang di .env.local
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 export async function extractDocumentData(formData: FormData) {
   try {
     const file = formData.get('file') as File;
@@ -13,9 +9,13 @@ export async function extractDocumentData(formData: FormData) {
       throw new Error('Tidak ada file yang diunggah');
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
       throw new Error('API Key Gemini belum dikonfigurasi. Hubungi Admin.');
     }
+
+    // Inisialisasi Gemini API di dalam fungsi agar selalu membaca ENV terbaru
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     // Mengubah File (Blob) menjadi buffer array, lalu ke Base64
     const arrayBuffer = await file.arrayBuffer();
