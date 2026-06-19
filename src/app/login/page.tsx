@@ -54,6 +54,26 @@ export default function LoginPage() {
     }
   }
 
+  const handleGuestLogin = async () => {
+    setLoading(true)
+    setError(null)
+    setSuccess(null)
+    
+    // Login menggunakan akun tamu khusus
+    const { error } = await supabase.auth.signInWithPassword({
+      email: 'tamu@sya-core.com',
+      password: 'tamu123',
+    })
+
+    if (error) {
+      setError("Akun Tamu belum siap. Minta Admin membuat akun tamu@sya-core.com (pass: tamu123) di Supabase Dashboard.")
+      setLoading(false)
+    } else {
+      router.push('/')
+      router.refresh()
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50/50 backdrop-blur-xl">
       <div className="w-full max-w-md p-8 space-y-8 bg-white/70 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl relative overflow-hidden">
@@ -138,6 +158,26 @@ export default function LoginPage() {
             >
               {isLogin ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Masuk di sini'}
             </button>
+          </div>
+
+          <div className="relative mt-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-[#f0f5f4] text-gray-500 rounded-full">Atau coba langsung</span>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <Button
+              type="button"
+              onClick={handleGuestLogin}
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border-2 border-emerald-600 text-sm font-medium rounded-md text-emerald-700 bg-white hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200"
+            >
+              Masuk sebagai Tamu (Guest Demo)
+            </Button>
           </div>
         </form>
       </div>
