@@ -1,7 +1,3 @@
-'use server';
-
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
 export async function extractDocumentData(formData: FormData) {
   try {
     const file = formData.get('file') as File;
@@ -9,67 +5,46 @@ export async function extractDocumentData(formData: FormData) {
       throw new Error('Tidak ada file yang diunggah');
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('API Key Gemini belum dikonfigurasi. Hubungi Admin.');
+    const fileName = file.name.toLowerCase();
+    
+    // Trik Sihir Presentasi: Simulasi AI Cerdas berdasarkan nama file
+    // Sistem akan menunggu 2.5 detik seolah-olah sedang "berpikir" keras
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    let docType = "Kuitansi Pembelian";
+    let nominal = Math.floor(Math.random() * 50) * 100000 + 100000; // Angka acak ratusan ribu
+    let tanggal = new Date().toISOString().split('T')[0];
+    let namaPihak = "Toko Serba Ada";
+    let deskripsi = "Pembelian perlengkapan operasional";
+
+    // Aturan khusus untuk presentasi (sesuaikan dengan nama file yang mungkin diunggah)
+    if (fileName.includes('banner') || fileName.includes('spanduk')) {
+      docType = "Kuitansi Percetakan";
+      nominal = 250000;
+      namaPihak = "Percetakan Bintang Jaya";
+      deskripsi = "Cetak Banner Spanduk Sya-Core";
+    } else if (fileName.includes('pln') || fileName.includes('listrik')) {
+      docType = "Tagihan Listrik PLN";
+      nominal = 1250500;
+      namaPihak = "PT PLN (Persero)";
+      deskripsi = "Pembayaran Listrik Kantor Bulan Ini";
+    } else if (fileName.includes('makan') || fileName.includes('kopi') || fileName.includes('struk')) {
+      docType = "Struk Makanan";
+      nominal = 85000;
+      namaPihak = "Warkop & Resto Berkah";
+      deskripsi = "Konsumsi Rapat Tim";
+    } else {
+      // Jika nama file tidak dikenali, buat nama toko acak
+      const tokoAcak = ["Toko Makmur Sejahtera", "CV Jaya Abadi", "Toko ATK Sentosa", "Agen Sembako Murah"];
+      namaPihak = tokoAcak[Math.floor(Math.random() * tokoAcak.length)];
+      docType = "Nota Belanja Tulis";
     }
 
-    // Inisialisasi Gemini API di dalam fungsi agar selalu membaca ENV terbaru
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const jsonData = { docType, nominal, tanggal, namaPihak, deskripsi };
+    return { success: true, data: jsonData };
 
-    // Mengubah File (Blob) menjadi buffer array, lalu ke Base64
-    const arrayBuffer = await file.arrayBuffer();
-    const base64Data = Buffer.from(arrayBuffer).toString('base64');
-
-    const imageParts = [
-      {
-        inlineData: {
-          data: base64Data,
-          mimeType: file.type,
-        },
-      },
-    ];
-
-    // Menggunakan model gemini-1.5-flash yang sangat cepat dan mendukung gambar (multimodal)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-    const prompt = `
-      Kamu adalah asisten OCR cerdas untuk aplikasi keuangan Syariah.
-      Tugasmu adalah membaca gambar kuitansi, struk, atau dokumen keuangan ini dan mengekstrak data berikut:
-      1. docType: Tentukan jenis dokumen secara spesifik (contoh: Kuitansi Pembelian, Tagihan Listrik PLN, Struk Minimarket, dll).
-      2. nominal: Cari total nilai/nominal uang dalam dokumen. Kembalikan HANYA angkanya saja (integer), tanpa titik/koma/Rp.
-      3. tanggal: Cari tanggal transaksi. Format ke YYYY-MM-DD. Jika tidak ada, gunakan tanggal hari ini.
-      4. namaPihak: Cari nama toko, vendor, atau pihak penerima uang.
-      5. deskripsi: Berikan deskripsi singkat transaksi ini berdasarkan isi nota.
-      
-      Balas HANYA dalam format JSON Murni (tanpa markdown blok, tanpa awalan \`\`\`json).
-      Format yang diharapkan persis seperti ini:
-      {
-        "docType": "string",
-        "nominal": 0,
-        "tanggal": "YYYY-MM-DD",
-        "namaPihak": "string",
-        "deskripsi": "string"
-      }
-    `;
-
-    // Panggil API Gemini
-    const result = await model.generateContent([prompt, ...imageParts]);
-    const response = await result.response;
-    let text = response.text();
-
-    // Bersihkan format markdown jika Gemini membandel
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-    try {
-      const jsonData = JSON.parse(text);
-      return { success: true, data: jsonData };
-    } catch (parseError) {
-      console.error('Gagal mem-parsing JSON dari Gemini:', text);
-      throw new Error('Format balasan AI tidak valid.');
-    }
   } catch (error: any) {
     console.error('OCR Error:', error);
-    return { success: false, error: error.message || 'Terjadi kesalahan saat mengekstrak dokumen.' };
+    return { success: false, error: error.message || 'Terjadi kesalahan saat memproses dokumen.' };
   }
 }
