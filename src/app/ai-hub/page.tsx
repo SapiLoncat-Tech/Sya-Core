@@ -35,34 +35,69 @@ export default function AIHubPage() {
       const text = ret.data.text;
       const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
 
-      // Algoritma Regex Pencari Pola
-      // 1. Cari Nama Toko (Biasanya baris pertama atau kedua yang panjangnya lumayan)
-      let namaPihak = lines.length > 0 ? lines[0] : "Toko Tidak Dikenal";
-      if (namaPihak.length < 3 && lines.length > 1) namaPihak = lines[1];
-
-      // 2. Cari Nominal Uang (Cari angka yang mengandung titik/koma dan panjang)
-      let nominal = 0;
-      const angkaMatches = text.replace(/[^0-9\\s]/g, '').split(/\\s+/);
-      const angkaBesar = angkaMatches
-        .map(Number)
-        .filter(n => !isNaN(n) && n > 1000)
-        .sort((a, b) => b - a); // Ambil angka paling besar yang biasanya adalah Total
+      // Algoritma Regex Pencari Pola yang Lebih Rapi
       
-      if (angkaBesar.length > 0) {
-        nominal = angkaBesar[0];
+      // 1. Cari Nominal Uang (Target khusus kata "Rp" atau angka dengan titik/koma)
+      let nominal = 0;
+      // Mencari pola seperti "Rp 60.000", "Rp.60,000", "60.000"
+      const rupiahMatches = text.match(/Rp\\s*[\\d.,]+/gi);
+      if (rupiahMatches) {
+        const angkas = rupiahMatches.map(str => {
+          // Bersihkan Rp, titik, koma, spas
+          const cleanNum = str.replace(/[^0-9]/g, '');
+          return parseInt(cleanNum, 10);
+        }).filter(n => !isNaN(n));
+        
+        if (angkas.length > 0) {
+          // Ambil angka terbesar karena biasanya itu adalah Total
+          nominal = Math.max(...angkas);
+        }
+      }
+      // Fallback jika tidak ada kata Rp
+      if (nominal === 0) {
+        const allNums = text.replace(/[^0-9\\s]/g, ' ').split(/\\s+/)
+          .map(Number).filter(n => !isNaN(n) && n > 1000);
+        if (allNums.length > 0) nominal = Math.max(...allNums);
       }
 
-      // 3. Cari Tanggal (Format DD/MM/YYYY atau DD-MM-YYYY)
-      let tanggal = new Date().toISOString().split('T')[0]; // Default hari ini
-      const tanggalMatch = text.match(/(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4})/);
-      if (tanggalMatch) {
-        tanggal = tanggalMatch[0];
+      // 2. Cari Nama Toko / Vendor (Ambil teks awal tapi dibatasi agar tidak meluber)
+      let namaPihak = "Tidak Terdeteksi";
+      if (lines.length > 0) {
+        // Ambil baris pertama, atau kalimat pertama jika tidak ada enter
+        namaPihak = lines[0].split(/[.,|«-]/)[0].trim();
+        // Kalau masih kepanjangan (misal 1 baris panjang banget), potong
+        if (namaPihak.length > 40) {
+          namaPihak = namaPihak.substring(0, 35) + "...";
+        }
+      }
+      
+      // Khusus untuk bukti transfer Bank
+      if (text.toLowerCase().includes('bank syariah indonesia') || text.toLowerCase().includes('bsi')) {
+         const namaPenerimaMatch = text.match(/Nama Penerima\\s+([A-Za-z\\s]+)/i);
+         if (namaPenerimaMatch && namaPenerimaMatch[1]) {
+            namaPihak = "Transfer ke: " + namaPenerimaMatch[1].substring(0, 20).trim();
+         } else {
+            namaPihak = "Bank Syariah Indonesia (BSI)";
+         }
+      }
+
+      // 3. Cari Tanggal
+      let tanggal = new Date().toISOString().split('T')[0];
+      const tanggalBulanTahun = text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+\\d{4})/); // e.g. 02 Mar 2026
+      const tanggalAngka = text.match(/(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4})/);
+      
+      if (tanggalBulanTahun) {
+        // Biarkan format string jika ketemu format tulisan
+        tanggal = tanggalBulanTahun[0];
+      } else if (tanggalAngka) {
+        tanggal = tanggalAngka[0];
       }
 
       // 4. Jenis Dokumen
       let docType = "Dokumen Keuangan";
       const txtLower = text.toLowerCase();
-      if (txtLower.includes('struk') || txtLower.includes('kasir')) docType = "Struk Belanja";
+      if (txtLower.includes('transfer') || txtLower.includes('rekening')) docType = "Bukti Transfer Bank";
+      else if (txtLower.includes('struk') || txtLower.includes('kasir')) docType = "Struk Belanja";
       else if (txtLower.includes('kuitansi') || txtLower.includes('kwitansi')) docType = "Kuitansi Pembayaran";
       else if (txtLower.includes('nota')) docType = "Nota Pembelian";
 
@@ -73,7 +108,6 @@ export default function AIHubPage() {
           nominal: nominal,
           tanggal: tanggal,
           namaPihak: namaPihak,
-          deskripsi: "Teks terdeteksi: " + text.substring(0, 30) + "..."
         }
       });
       
