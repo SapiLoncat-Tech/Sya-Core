@@ -8,27 +8,49 @@ import { Button } from '@/components/ui/button'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    if (isLogin) {
+      // PROSES LOGIN
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (error) {
-      setError(error.message)
-      setLoading(false)
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      } else {
+        router.push('/')
+        router.refresh()
+      }
     } else {
-      router.push('/')
-      router.refresh()
+      // PROSES DAFTAR (SIGN UP)
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      } else {
+        setSuccess('Pendaftaran berhasil! Silakan login (Cek email jika butuh verifikasi).')
+        setIsLogin(true) // Kembali ke mode login
+        setPassword('')
+        setLoading(false)
+      }
     }
   }
 
@@ -42,11 +64,11 @@ export default function LoginPage() {
         <div className="text-center relative z-10">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900">Sya-Core</h2>
           <p className="mt-2 text-sm text-gray-500">
-            Masuk ke sistem manajemen akuntansi syariah
+            {isLogin ? 'Masuk ke sistem manajemen akuntansi' : 'Buat akun baru untuk akses sistem'}
           </p>
         </div>
         
-        <form className="mt-8 space-y-6 relative z-10" onSubmit={handleLogin}>
+        <form className="mt-8 space-y-6 relative z-10" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <label htmlFor="email" className="sr-only">
@@ -83,8 +105,14 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm text-center font-medium">
+            <div className="text-red-500 text-sm text-center font-medium bg-red-50 p-2 rounded">
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="text-emerald-600 text-sm text-center font-medium bg-emerald-50 p-2 rounded">
+              {success}
             </div>
           )}
 
@@ -94,8 +122,22 @@ export default function LoginPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200"
             >
-              {loading ? 'Memproses...' : 'Masuk'}
+              {loading ? 'Memproses...' : (isLogin ? 'Masuk' : 'Daftar Akun')}
             </Button>
+          </div>
+          
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsLogin(!isLogin)
+                setError(null)
+                setSuccess(null)
+              }}
+              className="text-sm font-medium text-emerald-600 hover:text-emerald-500 transition-colors"
+            >
+              {isLogin ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Masuk di sini'}
+            </button>
           </div>
         </form>
       </div>
