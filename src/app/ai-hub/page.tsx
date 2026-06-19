@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, ScanLine, FileCheck, ShieldCheck, Activity, UploadCloud, CheckCircle2, X } from 'lucide-react';
-import { extractDocumentData } from '@/app/actions/ocr';
+import Tesseract from 'tesseract.js';
 
 export default function AIHubPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -14,7 +14,6 @@ export default function AIHubPage() {
     extracted: { nominal: number; tanggal: string; namaPihak: string; deskripsi?: string; };
   } | null>(null);
 
-  // Mock function untuk simulasi AI OCR Scanning
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
@@ -28,29 +27,59 @@ export default function AIHubPage() {
     setScanResult(null);
     
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      // Menjalankan Tesseract OCR secara lokal di browser!
+      const worker = await Tesseract.createWorker('ind');
+      const ret = await worker.recognize(file);
+      await worker.terminate();
 
-      // Panggil Server Action Gemini AI
-      const result = await extractDocumentData(formData);
+      const text = ret.data.text;
+      const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
 
-      if (result.success && result.data) {
-        setScanResult({
-          docType: result.data.docType || "Dokumen Keuangan",
-          confidence: Math.floor(Math.random() * (99 - 95 + 1)) + 95, // Random confidence high
-          extracted: {
-            nominal: result.data.nominal || 0,
-            tanggal: result.data.tanggal || new Date().toISOString().split('T')[0],
-            namaPihak: result.data.namaPihak || "Tidak Diketahui",
-            deskripsi: result.data.deskripsi
-          }
-        });
-      } else {
-        alert(result.error || "Gagal memproses gambar.");
+      // Algoritma Regex Pencari Pola
+      // 1. Cari Nama Toko (Biasanya baris pertama atau kedua yang panjangnya lumayan)
+      let namaPihak = lines.length > 0 ? lines[0] : "Toko Tidak Dikenal";
+      if (namaPihak.length < 3 && lines.length > 1) namaPihak = lines[1];
+
+      // 2. Cari Nominal Uang (Cari angka yang mengandung titik/koma dan panjang)
+      let nominal = 0;
+      const angkaMatches = text.replace(/[^0-9\\s]/g, '').split(/\\s+/);
+      const angkaBesar = angkaMatches
+        .map(Number)
+        .filter(n => !isNaN(n) && n > 1000)
+        .sort((a, b) => b - a); // Ambil angka paling besar yang biasanya adalah Total
+      
+      if (angkaBesar.length > 0) {
+        nominal = angkaBesar[0];
       }
+
+      // 3. Cari Tanggal (Format DD/MM/YYYY atau DD-MM-YYYY)
+      let tanggal = new Date().toISOString().split('T')[0]; // Default hari ini
+      const tanggalMatch = text.match(/(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4})/);
+      if (tanggalMatch) {
+        tanggal = tanggalMatch[0];
+      }
+
+      // 4. Jenis Dokumen
+      let docType = "Dokumen Keuangan";
+      const txtLower = text.toLowerCase();
+      if (txtLower.includes('struk') || txtLower.includes('kasir')) docType = "Struk Belanja";
+      else if (txtLower.includes('kuitansi') || txtLower.includes('kwitansi')) docType = "Kuitansi Pembayaran";
+      else if (txtLower.includes('nota')) docType = "Nota Pembelian";
+
+      setScanResult({
+        docType: docType,
+        confidence: Math.round(ret.data.confidence),
+        extracted: {
+          nominal: nominal,
+          tanggal: tanggal,
+          namaPihak: namaPihak,
+          deskripsi: "Teks terdeteksi: " + text.substring(0, 30) + "..."
+        }
+      });
+      
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan sistem saat menghubungi AI.");
+      alert("Gagal membaca dokumen. Pastikan gambar jernih dan pencahayaan bagus.");
     } finally {
       setIsScanning(false);
     }
