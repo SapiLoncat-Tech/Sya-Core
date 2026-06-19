@@ -115,7 +115,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <div className="p-6 border-t border-white/5">
+      <div className="p-4 border-t border-white/5">
         <div className="glass-card rounded-xl p-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
             <span className="text-emerald-400 font-bold text-sm">AM</span>
@@ -127,10 +127,10 @@ export default function Sidebar() {
         </div>
         <button 
           onClick={handleLogout}
-          className="mt-4 flex items-center w-full px-4 py-2 text-sm text-gray-400 hover:text-red-400 transition-colors group"
+          className="mt-4 flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group cursor-pointer text-gray-400 hover:text-red-400 hover:bg-red-500/10"
         >
-          <LogOut className="w-4 h-4 mr-3 group-hover:text-red-400" />
-          Keluar Sistem
+          <LogOut className="w-5 h-5 mr-3 group-hover:text-red-400 transition-colors" />
+          <span className="text-sm font-medium">Keluar Sistem</span>
         </button>
       </div>
       </aside>
