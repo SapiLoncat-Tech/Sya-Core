@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from '@/utils/supabase/client';
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -31,7 +32,15 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
 
   // Jangan tampilkan sidebar sama sekali di halaman login
   if (pathname === '/login') return null;
@@ -116,7 +125,10 @@ export default function Sidebar() {
             <p className="text-xs text-gray-400 truncate">Manajer LKM</p>
           </div>
         </div>
-        <button className="mt-4 flex items-center w-full px-4 py-2 text-sm text-gray-400 hover:text-red-400 transition-colors group">
+        <button 
+          onClick={handleLogout}
+          className="mt-4 flex items-center w-full px-4 py-2 text-sm text-gray-400 hover:text-red-400 transition-colors group"
+        >
           <LogOut className="w-4 h-4 mr-3 group-hover:text-red-400" />
           Keluar Sistem
         </button>
