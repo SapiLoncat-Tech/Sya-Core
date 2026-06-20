@@ -239,6 +239,12 @@ export default function AIHubPage() {
                           <span className="text-gray-400">Pihak/Vendor:</span>
                           <span className="text-white font-medium">{scanResult.extracted.namaPihak}</span>
                         </div>
+                        {scanResult.extracted.deskripsi && (
+                          <div className="mt-4 p-3 bg-black/40 rounded-lg border border-white/5">
+                            <span className="text-xs text-gray-500 block mb-1">Raw OCR Output:</span>
+                            <span className="text-xs text-gray-300 italic">{scanResult.extracted.deskripsi}</span>
+                          </div>
+                        )}
                       </div>
 
                       <button onClick={() => { setFile(null); setScanResult(null); }} className="w-full mt-5 bg-white/10 hover:bg-white/20 text-white font-medium py-2 rounded-lg transition-colors text-sm">
@@ -301,7 +307,10 @@ export default function AIHubPage() {
               ))}
             </div>
 
-            <button className="w-full mt-6 bg-white/5 hover:bg-white/10 text-white font-medium py-3 rounded-xl transition-colors text-sm border border-white/10 flex items-center justify-center">
+            <button 
+              onClick={() => alert("Laporan Analisis Detail (PDF) sedang dalam tahap sinkronisasi data. Fitur ini akan segera hadir!")}
+              className="w-full mt-6 bg-white/5 hover:bg-white/10 text-white font-medium py-3 rounded-xl transition-colors text-sm border border-white/10 flex items-center justify-center active:scale-95"
+            >
               <Activity className="w-4 h-4 mr-2" /> Generate Laporan Analisis Detail
             </button>
           </div>
