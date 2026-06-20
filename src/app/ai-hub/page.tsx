@@ -3,7 +3,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, ScanLine, FileCheck, ShieldCheck, Activity, UploadCloud, CheckCircle2, X } from 'lucide-react';
-import Tesseract from 'tesseract.js';
 
 export default function AIHubPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -27,6 +26,9 @@ export default function AIHubPage() {
     setScanResult(null);
     
     try {
+      // Import Tesseract secara dinamis agar tidak merusak sistem SSR Vercel yang membuat tombol Error/Freeze
+      const Tesseract = (await import('tesseract.js')).default;
+      
       // Menjalankan Tesseract OCR secara lokal di browser!
       const worker = await Tesseract.createWorker('ind');
       const ret = await worker.recognize(file);
