@@ -39,25 +39,28 @@ export default function AIHubPage() {
       
       // 1. Cari Nominal Uang (Target khusus kata "Rp" atau angka dengan titik/koma)
       let nominal = 0;
-      // Mencari pola seperti "Rp 60.000", "Rp.60,000", "60.000"
-      const rupiahMatches = text.match(/Rp\\s*[\\d.,]+/gi);
-      if (rupiahMatches) {
-        const angkas = rupiahMatches.map(str => {
-          // Bersihkan Rp, titik, koma, spas
-          const cleanNum = str.replace(/[^0-9]/g, '');
-          return parseInt(cleanNum, 10);
-        }).filter(n => !isNaN(n));
+      
+      // Ambil semua kumpulan angka dari teks
+      const semuaKata = text.split(/\\s+/);
+      const angkaPotensial = semuaKata.map(kata => {
+        // Tesseract sering salah baca Rp jadi Ap, Kp, dll. Kita bersihkan huruf.
+        // Hapus karakter non-digit selain titik dan koma
+        let numStr = kata.replace(/[^\\d.,]/g, '');
         
-        if (angkas.length > 0) {
-          // Ambil angka terbesar karena biasanya itu adalah Total
-          nominal = Math.max(...angkas);
+        // Format uang Indonesia: kalau ada koma, biasanya sen (misal 60.000,00) -> buang sen-nya
+        if (numStr.includes(',')) {
+          numStr = numStr.split(',')[0];
         }
-      }
-      // Fallback jika tidak ada kata Rp
-      if (nominal === 0) {
-        const allNums = text.replace(/[^0-9\\s]/g, ' ').split(/\\s+/)
-          .map(Number).filter(n => !isNaN(n) && n > 1000);
-        if (allNums.length > 0) nominal = Math.max(...allNums);
+        
+        // Hapus semua titik (ribuan)
+        numStr = numStr.replace(/\\./g, '');
+        
+        return parseInt(numStr, 10);
+      }).filter(n => !isNaN(n) && n >= 1000 && n < 1000000000); // Filter: lebih dari seribu, kurang dari 1 Milyar (agar nomor rekening tidak terambil)
+
+      if (angkaPotensial.length > 0) {
+        // Asumsi angka paling besar di struk/kuitansi adalah Total Nominal
+        nominal = Math.max(...angkaPotensial);
       }
 
       // 2. Cari Nama Toko / Vendor (Ambil teks awal tapi dibatasi agar tidak meluber)
