@@ -22,15 +22,83 @@ export default function AIHubPage() {
     }
   };
 
-  const handleGenerateReport = () => {
+  const handleGenerateReport = async () => {
     setIsGenerating(true);
-    // Simulasi proses pembuatan laporan (2 detik)
-    setTimeout(() => {
-      setIsGenerating(false);
+    
+    try {
+      const { jsPDF } = await import('jspdf');
+      const autoTable = (await import('jspdf-autotable')).default;
+      
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(22);
+      doc.setTextColor(16, 185, 129); // Emerald
+      doc.text('SYA-CORE LKM', 105, 20, { align: 'center' });
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Laporan Analisis Kesehatan Syariah (AI-Generated)', 105, 28, { align: 'center' });
+      
+      doc.setDrawColor(16, 185, 129);
+      doc.setLineWidth(0.5);
+      doc.line(14, 35, 196, 35);
+
+      // Info
+      doc.setFontSize(11);
+      doc.setTextColor(40, 40, 40);
+      doc.text(`Tanggal Analisis: ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric'})}`, 14, 45);
+      doc.setFont(undefined, 'bold');
+      doc.text('Skor Kesehatan Keseluruhan: 88 (SANGAT SEHAT)', 14, 52);
+      doc.setFont(undefined, 'normal');
+
+      // Table Data
+      autoTable(doc, {
+        startY: 60,
+        head: [['Indikator Kinerja', 'Nilai Aktual', 'Standar Regulator', 'Status']],
+        body: [
+          ['Non-Performing Financing (NPF)', '2.1%', '< 5%', 'Sangat Baik'],
+          ['Financing to Deposit Ratio (FDR)', '85%', '75% - 90%', 'Ideal'],
+          ['Efisiensi Operasional (BOPO)', '68%', '< 75%', 'Cukup'],
+          ['Capital Adequacy Ratio (CAR)', '22%', '> 12%', 'Sangat Baik'],
+          ['Return on Asset (ROA)', '2.5%', '> 1.5%', 'Sangat Baik']
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129], textColor: [255,255,255], fontStyle: 'bold' },
+        styles: { font: 'helvetica', fontSize: 10 },
+        alternateRowStyles: { fillColor: [245, 250, 248] }
+      });
+
+      // Kesimpulan AI
+      const finalY = (doc as any).lastAutoTable.finalY || 100;
+      doc.setFontSize(12);
+      doc.setTextColor(16, 185, 129);
+      doc.setFont(undefined, 'bold');
+      doc.text('Kesimpulan AI Analyzer:', 14, finalY + 15);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont(undefined, 'normal');
+      const text = "Berdasarkan analisis algoritma buku besar otomatis, Lembaga Keuangan Mikro Syariah saat ini beroperasi dalam tingkat kesehatan yang SANGAT BAIK. Risiko pembiayaan macet (NPF) sangat rendah dan rasio perputaran dana (FDR) berada di titik optimal. Operasional terbilang stabil dengan permodalan yang kuat.";
+      const splitText = doc.splitTextToSize(text, 180);
+      doc.text(splitText, 14, finalY + 22);
+
+      // Footer
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Generated automatically by Sya-Core AI Hub', 105, 280, { align: 'center' });
+
+      // Save
+      doc.save(`SyaCore_Shariah_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      
       setGenerateSuccess(true);
-      // Kembali ke semula setelah 3 detik
-      setTimeout(() => setGenerateSuccess(false), 3000);
-    }, 2000);
+      setTimeout(() => setGenerateSuccess(false), 4000);
+    } catch (error) {
+      console.error(error);
+      alert("Gagal memproses Laporan PDF. Pastikan koneksi internet stabil.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const startScan = async () => {
