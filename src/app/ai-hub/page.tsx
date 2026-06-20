@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, ScanLine, FileCheck, ShieldCheck, Activity, UploadCloud, CheckCircle2, X } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function AIHubPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -26,9 +28,6 @@ export default function AIHubPage() {
     setIsGenerating(true);
     
     try {
-      const { jsPDF } = await import('jspdf');
-      const autoTable = (await import('jspdf-autotable')).default;
-      
       const doc = new jsPDF();
       
       // Header
