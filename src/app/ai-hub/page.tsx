@@ -43,54 +43,47 @@ export default function AIHubPage() {
       // Ambil semua kumpulan angka dari teks
       const semuaKata = text.split(/\\s+/);
       const angkaPotensial = semuaKata.map(kata => {
-        // Tesseract sering salah baca Rp jadi Ap, Kp, dll. Kita bersihkan huruf.
-        // Hapus karakter non-digit selain titik dan koma
         let numStr = kata.replace(/[^\\d.,]/g, '');
         
-        // Format uang Indonesia: kalau ada koma, biasanya sen (misal 60.000,00) -> buang sen-nya
-        if (numStr.includes(',')) {
-          numStr = numStr.split(',')[0];
-        }
+        // Buang angka desimal di belakang (misal ,00 atau .00)
+        numStr = numStr.replace(/[,.]\\d{1,2}$/, '');
         
-        // Hapus semua titik (ribuan)
-        numStr = numStr.replace(/\\./g, '');
+        // Hapus sisa titik dan koma yang dipakai sebagai pemisah ribuan
+        numStr = numStr.replace(/[,.]/g, '');
         
         return parseInt(numStr, 10);
-      }).filter(n => !isNaN(n) && n >= 1000 && n < 1000000000); // Filter: lebih dari seribu, kurang dari 1 Milyar (agar nomor rekening tidak terambil)
+      }).filter(n => !isNaN(n) && n >= 1000 && n < 1000000000);
 
       if (angkaPotensial.length > 0) {
-        // Asumsi angka paling besar di struk/kuitansi adalah Total Nominal
         nominal = Math.max(...angkaPotensial);
       }
 
-      // 2. Cari Nama Toko / Vendor (Ambil teks awal tapi dibatasi agar tidak meluber)
+      // 2. Cari Nama Toko / Vendor
       let namaPihak = "Tidak Terdeteksi";
       if (lines.length > 0) {
-        // Ambil baris pertama, atau kalimat pertama jika tidak ada enter
         namaPihak = lines[0].split(/[.,|«-]/)[0].trim();
-        // Kalau masih kepanjangan (misal 1 baris panjang banget), potong
         if (namaPihak.length > 40) {
           namaPihak = namaPihak.substring(0, 35) + "...";
         }
       }
       
       // Khusus untuk bukti transfer Bank
-      if (text.toLowerCase().includes('bank syariah indonesia') || text.toLowerCase().includes('bsi')) {
-         const namaPenerimaMatch = text.match(/Nama Penerima\\s+([A-Za-z\\s]+)/i);
+      if (text.toLowerCase().includes('bank') || text.toLowerCase().includes('bsi') || text.toLowerCase().includes('transfer')) {
+         // Regex lebih longgar: cari kata setelah "Penerima" atau "Kpd"
+         const namaPenerimaMatch = text.match(/(?:Penerima|Kpd)\\s*[:\\-]?\\s*([A-Za-z\\s]{3,20})/i);
          if (namaPenerimaMatch && namaPenerimaMatch[1]) {
-            namaPihak = "Transfer ke: " + namaPenerimaMatch[1].substring(0, 20).trim();
+            namaPihak = "Transfer: " + namaPenerimaMatch[1].trim();
          } else {
-            namaPihak = "Bank Syariah Indonesia (BSI)";
+            namaPihak = "Bukti Transfer Bank";
          }
       }
 
       // 3. Cari Tanggal
       let tanggal = new Date().toISOString().split('T')[0];
-      const tanggalBulanTahun = text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+\\d{4})/); // e.g. 02 Mar 2026
+      const tanggalBulanTahun = text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+\\d{4})/);
       const tanggalAngka = text.match(/(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4})/);
       
       if (tanggalBulanTahun) {
-        // Biarkan format string jika ketemu format tulisan
         tanggal = tanggalBulanTahun[0];
       } else if (tanggalAngka) {
         tanggal = tanggalAngka[0];
@@ -99,7 +92,7 @@ export default function AIHubPage() {
       // 4. Jenis Dokumen
       let docType = "Dokumen Keuangan";
       const txtLower = text.toLowerCase();
-      if (txtLower.includes('transfer') || txtLower.includes('rekening')) docType = "Bukti Transfer Bank";
+      if (txtLower.includes('transfer') || txtLower.includes('rekening') || txtLower.includes('berhasil')) docType = "Bukti Transfer Bank";
       else if (txtLower.includes('struk') || txtLower.includes('kasir')) docType = "Struk Belanja";
       else if (txtLower.includes('kuitansi') || txtLower.includes('kwitansi')) docType = "Kuitansi Pembayaran";
       else if (txtLower.includes('nota')) docType = "Nota Pembelian";
@@ -111,6 +104,7 @@ export default function AIHubPage() {
           nominal: nominal,
           tanggal: tanggal,
           namaPihak: namaPihak,
+          deskripsi: "Teks terbaca: " + text.substring(0, 80) + "..."
         }
       });
       
