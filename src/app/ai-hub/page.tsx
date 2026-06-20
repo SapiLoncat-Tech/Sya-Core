@@ -47,9 +47,9 @@ export default function AIHubPage() {
       doc.setFontSize(11);
       doc.setTextColor(40, 40, 40);
       doc.text(`Tanggal Analisis: ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric'})}`, 14, 45);
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text('Skor Kesehatan Keseluruhan: 88 (SANGAT SEHAT)', 14, 52);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
 
       // Table Data
       autoTable(doc, {
@@ -72,12 +72,12 @@ export default function AIHubPage() {
       const finalY = (doc as any).lastAutoTable.finalY || 100;
       doc.setFontSize(12);
       doc.setTextColor(16, 185, 129);
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text('Kesimpulan AI Analyzer:', 14, finalY + 15);
       
       doc.setFontSize(10);
       doc.setTextColor(60, 60, 60);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
       const text = "Berdasarkan analisis algoritma buku besar otomatis, Lembaga Keuangan Mikro Syariah saat ini beroperasi dalam tingkat kesehatan yang SANGAT BAIK. Risiko pembiayaan macet (NPF) sangat rendah dan rasio perputaran dana (FDR) berada di titik optimal. Operasional terbilang stabil dengan permodalan yang kuat.";
       const splitText = doc.splitTextToSize(text, 180);
       doc.text(splitText, 14, finalY + 22);
