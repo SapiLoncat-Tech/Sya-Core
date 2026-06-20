@@ -79,7 +79,10 @@ export default function ReportsPage() {
             ))}
           </div>
           
-          <button className="w-full mt-4 text-xs text-blue-400 hover:text-blue-300 py-2 border border-blue-500/20 rounded-lg transition-colors">
+          <button 
+            onClick={() => alert("Perhatian: Fitur Penarikan Log Audit Lengkap (CSV/PDF) membutuhkan Hak Akses Administrator (Tier-1) dan sedang dalam proses integrasi database. Segera hadir!")}
+            className="w-full mt-4 text-xs text-blue-400 hover:text-blue-300 py-2 border border-blue-500/20 rounded-lg transition-colors active:scale-95"
+          >
             Lihat Log Lengkap
           </button>
         </div>
