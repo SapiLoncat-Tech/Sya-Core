@@ -40,18 +40,19 @@ export default function AIHubPage() {
       // 1. Cari Nominal Uang (Target khusus kata "Rp" atau angka dengan titik/koma)
       let nominal = 0;
       
-      // Ambil semua kumpulan angka dari teks
-      const semuaKata = text.split(/\\s+/);
-      const angkaPotensial = semuaKata.map(kata => {
-        let numStr = kata.replace(/[^\\d.,]/g, '');
-        
+      // Ambil semua kumpulan angka dengan cara menghapus SEMUA spasi terlebih dahulu.
+      // Ini sangat penting karena OCR sering salah membaca "60.000" menjadi "60. 000" atau "60 000".
+      const textTanpaSpasi = text.replace(/\\s+/g, '');
+      const numMatches = textTanpaSpasi.match(/[\\d.,]+/g) || [];
+      
+      const angkaPotensial = numMatches.map(numStr => {
         // Buang angka desimal di belakang (misal ,00 atau .00)
-        numStr = numStr.replace(/[,.]\\d{1,2}$/, '');
+        let cleanStr = numStr.replace(/[,.]\\d{1,2}$/, '');
         
         // Hapus sisa titik dan koma yang dipakai sebagai pemisah ribuan
-        numStr = numStr.replace(/[,.]/g, '');
+        cleanStr = cleanStr.replace(/[,.]/g, '');
         
-        return parseInt(numStr, 10);
+        return parseInt(cleanStr, 10);
       }).filter(n => !isNaN(n) && n >= 1000 && n < 1000000000);
 
       if (angkaPotensial.length > 0) {
@@ -225,7 +226,7 @@ export default function AIHubPage() {
                           <span className="text-white font-medium">{scanResult.docType}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Nominal Ekstrak:</span>
+                          <span className="text-gray-400">Total Nominal:</span>
                           <span className="text-emerald-400 font-bold">Rp {scanResult.extracted.nominal.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
