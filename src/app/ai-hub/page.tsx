@@ -7,6 +7,8 @@ import { Bot, ScanLine, FileCheck, ShieldCheck, Activity, UploadCloud, CheckCirc
 export default function AIHubPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateSuccess, setGenerateSuccess] = useState(false);
   const [scanResult, setScanResult] = useState<{
     docType: string;
     confidence: number;
@@ -18,6 +20,17 @@ export default function AIHubPage() {
       setFile(e.target.files[0]);
       setScanResult(null);
     }
+  };
+
+  const handleGenerateReport = () => {
+    setIsGenerating(true);
+    // Simulasi proses pembuatan laporan (2 detik)
+    setTimeout(() => {
+      setIsGenerating(false);
+      setGenerateSuccess(true);
+      // Kembali ke semula setelah 3 detik
+      setTimeout(() => setGenerateSuccess(false), 3000);
+    }, 2000);
   };
 
   const startScan = async () => {
@@ -308,10 +321,21 @@ export default function AIHubPage() {
             </div>
 
             <button 
-              onClick={() => alert("Laporan Analisis Detail (PDF) sedang dalam tahap sinkronisasi data. Fitur ini akan segera hadir!")}
-              className="w-full mt-6 bg-white/5 hover:bg-white/10 text-white font-medium py-3 rounded-xl transition-colors text-sm border border-white/10 flex items-center justify-center active:scale-95"
+              onClick={handleGenerateReport}
+              disabled={isGenerating || generateSuccess}
+              className={`w-full mt-6 font-medium py-3 rounded-xl transition-colors text-sm border flex items-center justify-center active:scale-95 ${
+                generateSuccess ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400" :
+                isGenerating ? "bg-white/5 border-white/10 text-white/70" :
+                "bg-white/5 hover:bg-white/10 border-white/10 text-white"
+              }`}
             >
-              <Activity className="w-4 h-4 mr-2" /> Generate Laporan Analisis Detail
+              {generateSuccess ? (
+                <><CheckCircle2 className="w-4 h-4 mr-2" /> PDF Berhasil Disinkronisasi!</>
+              ) : isGenerating ? (
+                <><div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2"></div> Memproses Laporan...</>
+              ) : (
+                <><Activity className="w-4 h-4 mr-2" /> Generate Laporan Analisis Detail</>
+              )}
             </button>
           </div>
         </div>
